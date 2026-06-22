@@ -2,38 +2,34 @@ name: Build Windows EXE
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-windows:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11' 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller pyqtgraph PyQt6
-        
-    - name: Build EXE with PyInstaller
-      # Added your logo, JSON model, and JAKA SDK to the build
-      run: >
-        pyinstaller --onefile 
-        --add-data "jakaAPI.dll;." 
-        --add-data "jkrc.pyd;." 
-        --add-data "spatial_model.json;."
-        --add-data "areg_logo.png;."
-        final_code.py
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pyqtgraph PyQt6
 
-    - name: Upload the Finished EXE
-      uses: actions/upload-artifact@v4
-      with:
-        name: Areg-Robot-Arm-Windows-Build
-        path: dist/final_code.exeø
+      - name: Build EXE with PyInstaller
+        # Forcing cmd bypasses PowerShell semicolon errors
+        shell: cmd
+        run: pyinstaller --onefile --add-data "jakaAPI.dll;." --add-data "jkrc.pyd;." --add-data "spatial_model.json;." --add-data "areg_logo.png;." final_code.py
+
+      - name: Upload the Finished Directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: Areg-Robot-Arm-Windows-Build
+          # Grabbing the whole folder ensures we capture the build no matter what it is named
+          path: dist/
